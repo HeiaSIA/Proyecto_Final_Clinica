@@ -1,0 +1,145 @@
+{% load static %}
+{% include 'private/header.html' %}
+
+<!-- CSS de DataTables para Bootstrap 5 -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
+<main class="dashboard-content">
+  <div class="container-fluid px-3 px-lg-4 py-4">
+
+    <!-- Encabezado y Acciones -->
+    <div class="row align-items-center mb-4">
+      <div class="col-md-8">
+        <h1 class="h3 mb-1">Directorio de Citas Médicas</h1>
+        <p class="text-muted mb-0">Gestión de agendamiento de atenciones y control de estados.</p>
+      </div>
+      
+      <div class="col-md-4 mt-3 mt-md-0 text-md-end">
+        <a href="{% url 'crear_cita' %}" class="btn btn-success">
+          <i class="bi bi-calendar-plus-fill me-1"></i> Agendar Nueva Cita
+        </a>
+      </div>
+    </div>
+
+    <!-- Tabla de Citas -->
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <table id="tablaCitas" class="table table-sm table-striped table-hover align-middle mb-0" style="width: 100%;">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 5%;">ID</th>
+                <th>Paciente</th>
+                <th>Médico Tratante</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th class="text-center">Estado</th>
+                <th class="text-end" style="width: 15%;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for cita in citas %}
+              <tr>
+                <td>{{ cita.id }}</td>
+                <td><strong>{{ cita.paciente.nombre }} {{ cita.paciente.apellido }}</strong></td>
+                <td>Dr(a). {{ cita.medico.nombres }} {{ cita.medico.apellidos }}</td>
+                <td>{{ cita.fecha|date:"d/m/Y" }}</td>
+                <td>{{ cita.hora|time:"H:i" }} hrs</td>
+                <td class="text-center">
+                  {% if cita.estado == 'PENDIENTE' %}
+                    <span class="badge bg-warning-subtle text-warning border border-warning">Pendiente</span>
+                  {% elif cita.estado == 'ATENDIDA' %}
+                    <span class="badge bg-success-subtle text-success border border-success">Atendida</span>
+                  {% else %}
+                    <span class="badge bg-danger-subtle text-danger border border-danger">Cancelada</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <a href="{% url 'editar_cita' cita.id %}" class="btn btn-sm btn-primary" title="Editar / Reprogramar">
+                    <i class="bi bi-pencil-square"></i>
+                  </a>
+                  
+                  <a href="#" data-url="{% url 'eliminar_cita' cita.id %}" onclick="confirmarEliminacion(event)" class="btn btn-sm btn-danger ms-1" title="Eliminar">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                </td>
+              </tr> 
+              {% endfor %}
+            </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+{% include 'private/footer.html' %}
+
+<!-- Scripts Requeridos (jQuery, DataTables y SweetAlert2) -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{% if messages %}
+<div id="mensajes-django" style="display:none;">
+    {% for message in messages %}
+        <div class="mensaje-django" data-tags="{{ message.tags|escape }}" data-text="{{ message|escape }}"></div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script>
+    // 1. Inicialización de DataTables en Español
+    $(document).ready(function() {
+        $('#tablaCitas').DataTable({
+            "language": {
+                "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+            },
+            "order": [[ 0, "desc" ]], 
+            "autoWidth": false,
+            "columnDefs": [
+                { "width": "5%", "targets": 0 },
+                { "width": "15%", "targets": 6 }
+            ]
+        });
+    });
+
+    // 2. SweetAlert para Mensajes de Django
+    document.addEventListener('DOMContentLoaded', function() {
+        const mensajeElements = document.querySelectorAll('#mensajes-django .mensaje-django');
+        mensajeElements.forEach((el) => {
+            const tags = el.dataset.tags || 'info';
+            let iconType = 'info';
+            if (tags.includes('error')) iconType = 'error';
+            else if (tags.includes('success')) iconType = 'success';
+            else if (tags.includes('warning')) iconType = 'warning';
+
+            const title = iconType === 'error' ? '¡Error!' : (iconType === 'success' ? '¡Éxito!' : '¡Atención!');
+            
+            Swal.fire({
+                title: title, text: el.dataset.text, icon: iconType, confirmButtonColor: '#198754'
+            });
+        });
+    });
+
+    // 3. Confirmación de Eliminación
+    function confirmarEliminacion(event) {
+        event.preventDefault();
+        const url = event.currentTarget.dataset.url;
+        
+        Swal.fire({
+            title: '¿Eliminar cita médica?',
+            text: "Esta acción removerá permanentemente el registro de la cita.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
+</script>
