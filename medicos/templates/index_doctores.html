@@ -7,25 +7,38 @@
 <main class="dashboard-content">
   <div class="container-fluid px-3 px-lg-4 py-4">
 
-    <!-- Encabezado y Acciones -->
-    <div class="row align-items-center mb-4">
-      <div class="col-md-8">
-        <h1 class="h3 mb-1">Directorio de Médicos</h1>
-        <p class="text-muted mb-0">Gestión de la plantilla médica y control de disponibilidad.</p>
+    <!-- Encabezado de Página -->
+    <div class="page-heading d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 border-bottom mb-4">
+      <div class="d-flex align-items-center gap-3">
+        <span class="page-icon bg-primary-subtle text-primary p-3 rounded-3 fs-4 d-inline-flex align-items-center justify-content-center">
+          <i class="bi bi-person-badge-fill" aria-hidden="true"></i>
+        </span>
+        <div>
+          <p class="eyebrow mb-1 text-uppercase fw-semibold text-primary style-sm">Clínica UTC • Módulo Personal Médico</p>
+          <h1 class="h3 mb-1 fw-bold">Directorio de Médicos</h1>
+          <p class="text-body-secondary mb-0">Gestión de la plantilla médica, especialidades y control de disponibilidad operacional.</p>
+        </div>
       </div>
-      
-      <div class="col-md-4 mt-3 mt-md-0 text-md-end">
-        <a href="{% url 'crear_doctor' %}" class="btn btn-success">
-          <i class="bi bi-person-plus-fill me-1"></i> Registrar Nuevo Médico
+      <div class="d-flex gap-2">
+        <a href="{% url 'crear_doctor' %}" class="btn btn-success d-inline-flex align-items-center gap-1 shadow-sm">
+          <i class="bi bi-person-plus-fill"></i> Registrar Nuevo Médico
         </a>
       </div>
     </div>
 
     <!-- Tabla de Médicos -->
-    <div class="card shadow-sm border-0">
-      <div class="card-body">
-        <table id="tablaMedicos" class="table table-sm table-striped table-hover align-middle mb-0" style="width: 100%;">
-            <thead class="table-light">
+    <div class="card shadow-sm border-0 rounded-3">
+      <div class="card-header bg-transparent py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="card-title m-0 fw-bold fs-6 text-body-emphasis">
+          <i class="bi bi-list-nested me-2 text-primary"></i>Nómina Registrada
+        </h5>
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Total: {{ doctores|length }}</span>
+      </div>
+
+      <div class="card-body p-3 p-lg-4">
+        <div class="table-responsive">
+          <table id="tablaMedicos" class="table table-hover align-middle mb-0 w-100">
+            <thead class="table-light border-bottom">
               <tr>
                 <th style="width: 5%;">ID</th>
                 <th>Médico</th>
@@ -33,37 +46,60 @@
                 <th>Reg. Profesional</th>
                 <th>Teléfono</th>
                 <th class="text-center">Estado</th>
-                <th class="text-end" style="width: 15%;">Acciones</th>
+                <th class="text-end" style="width: 12%;">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {% for doctor in doctores %}
               <tr>
-                <td>{{ doctor.id }}</td>
-                <td><strong>Dr(a). {{ doctor.nombres }} {{ doctor.apellidos }}</strong></td>
-                <td>{{ doctor.especialidad }}</td>
-                <td>{{ doctor.registro_profesional }}</td>
-                <td>{{ doctor.telefono }}</td>
+                <td class="fw-semibold text-body-secondary">#{{ doctor.id }}</td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="bg-light text-primary rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                      <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div>
+                      <span class="fw-bold text-body-emphasis d-block">Dr(a). {{ doctor.nombres }} {{ doctor.apellidos }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge bg-light text-body border fw-normal">{{ doctor.especialidad }}</span>
+                </td>
+                <td><code class="text-body-secondary">{{ doctor.registro_profesional }}</code></td>
+                <td>
+                  {% if doctor.telefono %}
+                    <i class="bi bi-telephone text-muted me-1"></i>{{ doctor.telefono }}
+                  {% else %}
+                    <span class="text-muted fs-7">N/A</span>
+                  {% endif %}
+                </td>
                 <td class="text-center">
                   {% if doctor.activo %}
-                    <span class="badge bg-success-subtle text-success border border-success">Activo</span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5">
+                      <i class="bi bi-check-circle-fill me-1"></i>Activo
+                    </span>
                   {% else %}
-                    <span class="badge bg-secondary-subtle text-secondary border border-secondary">Inactivo</span>
+                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-2.5">
+                      <i class="bi bi-dash-circle-fill me-1"></i>Inactivo
+                    </span>
                   {% endif %}
                 </td>
                 <td class="text-end">
-                  <a href="{% url 'editar_doctor' doctor.id %}" class="btn btn-sm btn-primary" title="Editar">
-                    <i class="bi bi-pencil-square"></i>
-                  </a>
-                  
-                  <a href="#" data-url="{% url 'eliminar_doctor' doctor.id %}" onclick="confirmarEliminacion(event)" class="btn btn-sm btn-danger ms-1" title="Eliminar">
-                    <i class="bi bi-trash"></i>
-                  </a>
+                  <div class="btn-group btn-group-sm" role="group" aria-label="Acciones de médico">
+                    <a href="{% url 'editar_doctor' doctor.id %}" class="btn btn-outline-primary" title="Editar Expediente">
+                      <i class="bi bi-pencil-square"></i>
+                    </a>
+                    <button type="button" data-url="{% url 'eliminar_doctor' doctor.id %}" onclick="confirmarEliminacion(event)" class="btn btn-outline-danger" title="Eliminar Registro">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
                 </td>
-              </tr> 
+              </tr>
               {% endfor %}
             </tbody>
-        </table>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -79,7 +115,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 {% if messages %}
-<div id="mensajes-django" style="display:none;">
+<div id="mensajes-django" class="d-none">
     {% for message in messages %}
         <div class="mensaje-django" data-tags="{{ message.tags|escape }}" data-text="{{ message|escape }}"></div>
     {% endfor %}
@@ -87,7 +123,7 @@
 {% endif %}
 
 <script>
-    // 1. Inicialización de DataTables en Español
+    // 1. Inicialización de DataTables adaptado a Bootstrap 5 en Español
     $(document).ready(function() {
         $('#tablaMedicos').DataTable({
             "language": {
@@ -95,14 +131,15 @@
             },
             "order": [[ 0, "desc" ]], 
             "autoWidth": false,
+            "pageLength": 10,
             "columnDefs": [
                 { "width": "5%", "targets": 0 },
-                { "width": "15%", "targets": 6 }
+                { "orderable": false, "targets": 6 }
             ]
         });
     });
 
-    // 2. SweetAlert para Mensajes de Django
+    // 2. SweetAlert2 para Notificaciones de Django
     document.addEventListener('DOMContentLoaded', function() {
         const mensajeElements = document.querySelectorAll('#mensajes-django .mensaje-django');
         mensajeElements.forEach((el) => {
@@ -112,28 +149,40 @@
             else if (tags.includes('success')) iconType = 'success';
             else if (tags.includes('warning')) iconType = 'warning';
 
-            const title = iconType === 'error' ? '¡Error!' : (iconType === 'success' ? '¡Éxito!' : '¡Atención!');
+            const title = iconType === 'error' ? '¡Error!' : (iconType === 'success' ? '¡Operación Exitosa!' : '¡Atención!');
             
             Swal.fire({
-                title: title, text: el.dataset.text, icon: iconType, confirmButtonColor: '#198754'
+                title: title,
+                text: el.dataset.text,
+                icon: iconType,
+                confirmButtonColor: '#0d6efd',
+                customClass: {
+                  confirmButton: 'btn btn-primary px-4'
+                }
             });
         });
     });
 
-    // 3. Confirmación de Eliminación
+    // 3. Confirmación de Eliminación mediante Modal Interactivo
     function confirmarEliminacion(event) {
         event.preventDefault();
-        const url = event.currentTarget.dataset.url;
+        const button = event.currentTarget;
+        const url = button.dataset.url;
         
         Swal.fire({
             title: '¿Eliminar médico?',
-            text: "Esta acción removerá permanentemente al médico del sistema.",
+            text: "Esta acción eliminará al médico de la nómina activa de la Clínica UTC.",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc3545',
             cancelButtonColor: '#6c757d',
             confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
+            cancelButtonText: 'Cancelar',
+            customClass: {
+              confirmButton: 'btn btn-danger px-3 me-2',
+              cancelButton: 'btn btn-secondary px-3'
+            },
+            buttonsStyling: false
         }).then((result) => {
             if (result.isConfirmed) {
                 window.location.href = url;

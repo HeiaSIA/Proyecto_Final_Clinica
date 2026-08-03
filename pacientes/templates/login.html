@@ -1,73 +1,163 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="auto">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="adminHMD authentication page">
-  <title>Login | adminHMD</title>
+  <meta name="description" content="Acceso al Sistema de Gestión Médica - Clínica UTC">
+  <title>Iniciar Sesión | Clínica UTC</title>
 
   <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'assets/vendors/bootstrap-icons/bootstrap-icons.css' %}">
   <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+
+  <style>
+    /* Ajustes finos de contraste e integración de tema */
+    .auth-card {
+      background-color: var(--bs-body-bg);
+      border: 1px solid var(--bs-border-color-translucent);
+    }
+    .input-group-text {
+      background-color: var(--bs-tertiary-bg);
+      border-color: var(--bs-border-color);
+      color: var(--bs-secondary-color);
+    }
+    .form-control {
+      background-color: var(--bs-body-bg);
+      color: var(--bs-body-color);
+      border-color: var(--bs-border-color);
+    }
+    .form-control:focus {
+      background-color: var(--bs-body-bg);
+      color: var(--bs-body-color);
+    }
+  </style>
 </head>
 
-<body class="auth-body">
-  <button class="icon-button theme-toggle auth-theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme" title="Switch color theme">
+<body class="auth-body bg-body-tertiary d-flex align-items-center justify-content-center min-vh-100 py-4">
+
+  <button class="icon-button theme-toggle auth-theme-toggle position-absolute top-0 end-0 m-3 btn btn-outline-secondary btn-sm rounded-circle p-2" type="button" data-theme-toggle aria-label="Cambiar tema" title="Cambiar tema">
     <i class="bi bi-moon-stars" data-theme-icon aria-hidden="true"></i>
   </button>
 
-  <main class="auth-page">
-    <section class="auth-card">
-      <a class="auth-brand" href="#"><span class="brand-icon"><i class="bi bi-grid-1x2-fill" aria-hidden="true"></i></span><span><strong>adminHMD</strong><small>Sign in to your admin workspace.</small></span></a>
-      <div class="auth-visual"><img src="{% static 'assets/images/png/dasher-ui-bootstrap-5.jpg' %}" alt="adminHMD dashboard interface"></div>
+  <main class="auth-page w-100 px-3" style="max-width: 420px;">
+    <section class="auth-card card border-0 shadow-lg rounded-4 overflow-hidden">
       
-      <!-- FORMULARIO CORREGIDO -->
-      <form method="POST" class="needs-validation" novalidate>
-        {% csrf_token %}
+      <div class="card-body p-4 p-sm-4">
+        
+        <div class="text-center mb-4">
+          <a class="auth-brand d-inline-flex align-items-center gap-3 text-decoration-none mb-1" href="#">
+            <span class="brand-icon bg-primary text-white p-2.5 rounded-3 fs-3 d-inline-flex align-items-center justify-content-center shadow-sm">
+              <i class="bi bi-hospital-fill" aria-hidden="true"></i>
+            </span>
+            <div class="text-start">
+              <span class="h4 fw-bold mb-0 d-block text-body-emphasis">Clínica UTC</span>
+              <small class="text-body-secondary style-sm">Sistema Médico de Gestión</small>
+            </div>
+          </a>
+        </div>
+
+        <div class="mb-4 text-center">
+          <h1 class="h4 mb-1 fw-bold text-body-emphasis">Acceso al Sistema</h1>
+          <p class="text-body-secondary small mb-0">Ingresa tus credenciales para acceder al workspace administrativo.</p>
+        </div>
 
         {% if error %}
-          <div class="alert alert-danger py-2" role="alert">
-            <small>{{ error }}</small>
+          <div class="alert alert-danger alert-dismissible fade show py-2 small shadow-sm mb-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ error }}
+            <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
         {% endif %}
 
-        <div class="mb-4">
-          <p class="eyebrow mb-1">Secure Access</p>
-          <h1 class="h3 mb-1">Login</h1>
-          <p class="text-muted mb-0">Sign in to your admin workspace.</p>
-        </div>
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show py-2 small shadow-sm mb-3" role="alert">
+              <i class="bi bi-info-circle-fill me-1"></i> {{ message }}
+              <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
 
-        <div class="mb-3">
-          <label class="form-label" for="loginEmail">Username or Email</label>
-          <input class="form-control" id="loginEmail" name="username" type="text" required>
-          <div class="invalid-feedback">Enter your username.</div>
-        </div>
+        <form method="POST" class="needs-validation" novalidate>
+          {% csrf_token %}
 
-        <div class="mb-3">
-          <div class="d-flex justify-content-between">
-            <label class="form-label" for="loginPassword">Password</label>
-            <a class="small fw-semibold" href="#">Forgot?</a>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small text-body" for="loginEmail">Usuario o Correo Electrónico</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-person"></i></span>
+              <input class="form-control" id="loginEmail" name="username" type="text" placeholder="Ej. admin_utc" required autocomplete="username">
+              <div class="invalid-feedback">Por favor, ingresa tu usuario o correo.</div>
+            </div>
           </div>
-          <input class="form-control" id="loginPassword" name="password" type="password" required>
-          <div class="invalid-feedback">Password is required.</div>
-        </div>
 
-        <div class="form-check mb-4">
-          <input class="form-check-input" type="checkbox" id="rememberMe">
-          <label class="form-check-label" for="rememberMe">Remember me</label>
-        </div>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label class="form-label fw-semibold small text-body mb-0" for="loginPassword">Contraseña</label>
+              <a class="small text-decoration-none fw-semibold text-primary" href="#">¿Olvidaste tu contraseña?</a>
+            </div>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-lock"></i></span>
+              <input class="form-control" id="loginPassword" name="password" type="password" placeholder="••••••••" required autocomplete="current-password">
+              <button class="btn btn-outline-secondary" type="button" id="togglePasswordBtn" title="Mostrar/Ocultar contraseña">
+                <i class="bi bi-eye" id="togglePasswordIcon"></i>
+              </button>
+              <div class="invalid-feedback">Ingresa tu contraseña de acceso.</div>
+            </div>
+          </div>
 
-        <button class="btn btn-primary w-100" type="submit">
-          <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Sign In
-        </button>
-      </form>
-      
-      <div class="auth-footer">New here? <a href="#">Create an account</a></div>
+          <div class="form-check mb-4">
+            <input class="form-check-input" type="checkbox" id="rememberMe" name="remember_me">
+            <label class="form-check-label small text-body-secondary" for="rememberMe">
+              Recordar mi sesión en este dispositivo
+            </label>
+          </div>
+
+          <button class="btn btn-primary w-100 py-2.5 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm" type="submit">
+            <i class="bi bi-box-arrow-in-right fs-5" aria-hidden="true"></i> Iniciar Sesión
+          </button>
+        </form>
+
+      </div>
+
+      <div class="card-footer bg-transparent py-3 text-center border-top border-secondary-subtle">
+        <span class="small text-body-secondary">© 2026 <strong class="text-body-emphasis">Clínica UTC</strong> • Todos los derechos reservados</span>
+      </div>
+
     </section>
   </main>
 
   <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
   <script src="{% static 'assets/js/main.js' %}"></script>
+  
+  <script>
+    // Validaciones nativas de HTML5 / Bootstrap
+    (function () {
+      'use strict'
+      const forms = document.querySelectorAll('.needs-validation')
+      Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+          form.classList.add('was-validated')
+        }, false)
+      })
+    })()
+
+    // Alternar visibilidad de contraseña
+    const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+    const passwordInput = document.getElementById('loginPassword');
+    const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+
+    if (togglePasswordBtn && passwordInput && togglePasswordIcon) {
+      togglePasswordBtn.addEventListener('click', function () {
+        const isPassword = passwordInput.getAttribute('type') === 'password';
+        passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+        togglePasswordIcon.classList.toggle('bi-eye', !isPassword);
+        togglePasswordIcon.classList.toggle('bi-eye-slash', isPassword);
+      });
+    }
+  </script>
 </body>
 </html>

@@ -4,92 +4,150 @@
 <main class="dashboard-content">
   <div class="container-fluid px-3 px-lg-4 py-4">
 
-    <!-- Encabezado -->
-    <div class="row align-items-center mb-4">
-      <div class="col-md-8">
-        <h1 class="h3 mb-1">Editar Datos del Médico</h1>
-        <p class="text-muted mb-0">Actualiza la información de Dr(a). {{ doctor.nombres }} {{ doctor.apellidos }}.</p>
+    <!-- Encabezado de Página -->
+    <div class="page-heading d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 border-bottom mb-4">
+      <div class="d-flex align-items-center gap-3">
+        <span class="page-icon bg-warning-subtle text-warning p-3 rounded-3 fs-4 d-inline-flex align-items-center justify-content-center">
+          <i class="bi bi-person-gear" aria-hidden="true"></i>
+        </span>
+        <div>
+          <p class="eyebrow mb-1 text-uppercase fw-semibold text-primary style-sm">Clínica UTC • Personal Médico</p>
+          <h1 class="h3 mb-1 fw-bold">Editar Datos del Médico</h1>
+          <p class="text-body-secondary mb-0">Actualiza la información profesional y disponibilidad de Dr(a). {{ doctor.nombres }} {{ doctor.apellidos }}.</p>
+        </div>
       </div>
-      <div class="col-md-4 mt-3 mt-md-0 text-md-end">
-        <a href="{% url 'index_doctores' %}" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-1"></i> Volver al listado
+      <div>
+        <a href="{% url 'index_doctores' %}" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
+          <i class="bi bi-arrow-left"></i> Volver al Directorio
         </a>
       </div>
     </div>
 
-    <!-- Formulario en Card -->
-    <div class="row">
-      <div class="col-lg-8">
-        <div class="card shadow-sm border-0">
-          <div class="card-body p-4">
-            <form method="POST">
+    <!-- Contenedor Principal del Formulario -->
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-10 col-xl-8">
+
+        <!-- Mensajes de Alerta / Validación de Django -->
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm mb-4" role="alert">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <div class="card shadow-sm border-0 rounded-3">
+          <div class="card-header bg-transparent py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+            <h5 class="card-title m-0 fw-bold fs-6 text-primary">
+              <i class="bi bi-person-vcard me-2"></i>Expediente Profesional #{{ doctor.id }}
+            </h5>
+            <span class="badge bg-light text-body border">Módulo Médico</span>
+          </div>
+
+          <div class="card-body p-4 pt-1">
+            <form method="POST" novalidate>
               {% csrf_token %}
 
-              <div class="row g-3">
+              <!-- Nombres y Apellidos -->
+              <div class="row g-3 mb-3">
                 <div class="col-md-6">
-                  <label for="nombres" class="form-label fw-bold">Nombres</label>
-                  <input type="text" name="nombres" id="nombres" class="form-control" value="{{ doctor.nombres }}" required>
+                  <label for="nombres" class="form-label fw-semibold">Nombres <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                    <input type="text" name="nombres" id="nombres" class="form-control" value="{{ doctor.nombres }}" required pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" title="Solo se permiten letras">
+                  </div>
                 </div>
 
                 <div class="col-md-6">
-                  <label for="apellidos" class="form-label fw-bold">Apellidos</label>
-                  <input type="text" name="apellidos" id="apellidos" class="form-control" value="{{ doctor.apellidos }}" required>
+                  <label for="apellidos" class="form-label fw-semibold">Apellidos <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                    <input type="text" name="apellidos" id="apellidos" class="form-control" value="{{ doctor.apellidos }}" required pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" title="Solo se permiten letras">
+                  </div>
                 </div>
+              </div>
 
-                <!-- Campo de Especialidad con Lógica de Preselección -->
+              <!-- Especialidad y Registro Profesional -->
+              <div class="row g-3 mb-3">
                 <div class="col-md-6">
-                  <label for="especialidad" class="form-label fw-bold">Especialidad</label>
-                  <select name="especialidad" id="especialidad" class="form-select" required>
-                    <option value="" disabled>Seleccione una especialidad...</option>
-                    <option value="Medicina General" {% if doctor.especialidad == "Medicina General" %}selected{% endif %}>Medicina General</option>
-                    <option value="Pediatría" {% if doctor.especialidad == "Pediatría" %}selected{% endif %}>Pediatría</option>
-                    <option value="Ginecología" {% if doctor.especialidad == "Ginecología" %}selected{% endif %}>Ginecología</option>
-                    <option value="Cardiología" {% if doctor.especialidad == "Cardiología" %}selected{% endif %}>Cardiología</option>
-                    <option value="Dermatología" {% if doctor.especialidad == "Dermatología" %}selected{% endif %}>Dermatología</option>
-                    <option value="Oftalmología" {% if doctor.especialidad == "Oftalmología" %}selected{% endif %}>Oftalmología</option>
-                    <option value="Traumatología" {% if doctor.especialidad == "Traumatología" %}selected{% endif %}>Traumatología</option>
-                    <option value="Odontología" {% if doctor.especialidad == "Odontología" %}selected{% endif %}>Odontología</option>
-                    <option value="Psicología" {% if doctor.especialidad == "Psicología" %}selected{% endif %}>Psicología</option>
-                    <option value="Nutrición" {% if doctor.especialidad == "Nutrición" %}selected{% endif %}>Nutrición</option>
-                  </select>
+                  <label for="especialidad" class="form-label fw-semibold">Especialidad Médica <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light text-muted"><i class="bi bi-award"></i></span>
+                    <select name="especialidad" id="especialidad" class="form-select" required>
+                      <option value="" disabled>Seleccione una especialidad...</option>
+                      <option value="Medicina General" {% if doctor.especialidad == "Medicina General" %}selected{% endif %}>Medicina General</option>
+                      <option value="Pediatría" {% if doctor.especialidad == "Pediatría" %}selected{% endif %}>Pediatría</option>
+                      <option value="Ginecología" {% if doctor.especialidad == "Ginecología" %}selected{% endif %}>Ginecología</option>
+                      <option value="Cardiología" {% if doctor.especialidad == "Cardiología" %}selected{% endif %}>Cardiología</option>
+                      <option value="Dermatología" {% if doctor.especialidad == "Dermatología" %}selected{% endif %}>Dermatología</option>
+                      <option value="Oftalmología" {% if doctor.especialidad == "Oftalmología" %}selected{% endif %}>Oftalmología</option>
+                      <option value="Traumatología" {% if doctor.especialidad == "Traumatología" %}selected{% endif %}>Traumatología</option>
+                      <option value="Odontología" {% if doctor.especialidad == "Odontología" %}selected{% endif %}>Odontología</option>
+                      <option value="Psicología" {% if doctor.especialidad == "Psicología" %}selected{% endif %}>Psicología</option>
+                      <option value="Nutrición" {% if doctor.especialidad == "Nutrición" %}selected{% endif %}>Nutrición</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div class="col-md-6">
-                  <label for="registro_profesional" class="form-label fw-bold">Registro Profesional</label>
-                  <input type="text" name="registro_profesional" id="registro_profesional" class="form-control" value="{{ doctor.registro_profesional }}" required>
+                  <label for="registro_profesional" class="form-label fw-semibold">Registro / Matrícula Profesional <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light text-muted"><i class="bi bi-file-earmark-medical"></i></span>
+                    <input type="text" name="registro_profesional" id="registro_profesional" class="form-control" value="{{ doctor.registro_profesional }}" required>
+                  </div>
                 </div>
+              </div>
 
+              <!-- Teléfono de Contacto -->
+              <div class="row g-3 mb-4">
                 <div class="col-md-6">
-                  <label for="telefono" class="form-label fw-bold">Teléfono de Contacto</label>
-                  <input type="text" name="telefono" id="telefono" class="form-control" value="{{ doctor.telefono }}" required>
+                  <label for="telefono" class="form-label fw-semibold">Teléfono de Contacto <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light text-muted"><i class="bi bi-telephone"></i></span>
+                    <input type="tel" name="telefono" id="telefono" class="form-control" value="{{ doctor.telefono }}" required maxlength="20" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                  </div>
                 </div>
+              </div>
 
-                <!-- Control de Disponibilidad -->
-                <div class="col-12 mt-4">
-                  <div class="bg-light rounded border p-3">
-                    <div class="form-check form-switch ps-5 mb-0">
-                      <input type="checkbox" name="activo" id="activo" class="form-check-input" {% if doctor.activo %}checked{% endif %}>
-                      <label class="form-check-label fw-bold ms-2" for="activo">
-                        Estado Activo / Disponible
+              <!-- Control de Estado y Disponibilidad -->
+              <div class="mb-4">
+                <div class="card bg-body-tertiary border rounded-3 p-3">
+                  <div class="form-check form-switch d-flex align-items-center gap-3 ps-0 mb-0">
+                    <input type="checkbox" name="activo" id="activo" class="form-check-input ms-0 fs-5" {% if doctor.activo %}checked{% endif %} role="switch">
+                    <div>
+                      <label class="form-check-label fw-bold text-body-emphasis" for="activo">
+                        Estado del Médico: 
+                        {% if doctor.activo %}
+                          <span class="badge bg-success-subtle text-success border border-success-subtle ms-1">Activo / Disponible</span>
+                        {% else %}
+                          <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle ms-1">Inactivo / Suspendido</span>
+                        {% endif %}
                       </label>
-                      <div class="form-text text-muted">
-                        Desmarca esta casilla para suspender o retirar temporalmente al médico de las citas.
+                      <div class="form-text small mb-0">
+                        Al desactivar este registro, el médico no aparecerá disponible para la asignación de nuevas citas médicas.
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <div class="col-12 mt-4 d-flex justify-content-end gap-2">
-                  <a href="{% url 'index_doctores' %}" class="btn btn-light">Cancelar</a>
-                  <button type="submit" class="btn btn-primary px-4">
-                    <i class="bi bi-pencil-square me-1"></i> Actualizar Información
-                  </button>
-                </div>
+              <hr class="my-4 text-muted opacity-25">
+
+              <!-- Acciones del Formulario -->
+              <div class="d-flex justify-content-end align-items-center gap-2">
+                <a href="{% url 'index_doctores' %}" class="btn btn-outline-secondary px-4">
+                  <i class="bi bi-x-circle me-1"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-warning text-dark fw-semibold px-4">
+                  <i class="bi bi-arrow-repeat me-1"></i> Actualizar Información
+                </button>
               </div>
 
             </form>
           </div>
         </div>
+
       </div>
     </div>
 
