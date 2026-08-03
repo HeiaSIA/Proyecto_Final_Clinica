@@ -4,60 +4,138 @@
 <main class="dashboard-content">
   <div class="container-fluid px-3 px-lg-4 py-4">
 
-    <div class="mb-4">
-      <h1 class="h3 mb-1">Editar Paciente</h1>
-      <p class="text-muted mb-0">Modifica los datos del paciente seleccionado.</p>
-    </div>
-
-    <div class="card shadow-sm border-0" style="max-width: 800px;">
-      <div class="card-body p-4">
-        
-        <form method="POST">
-          {% csrf_token %}
-
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <label for="nombre" class="form-label fw-bold">Nombre</label>
-              <input type="text" class="form-control" id="nombre" name="nombre" value="{{ paciente.nombre }}" required pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+">
-            </div>
-            <div class="col-md-6 mt-3 mt-md-0">
-              <label for="apellido" class="form-label fw-bold">Apellido</label>
-              <input type="text" class="form-control" id="apellido" name="apellido" value="{{ paciente.apellido }}" required pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+">
-            </div>
-          </div>
-
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <label for="cedula" class="form-label fw-bold">Cédula / DNI</label>
-              <input type="text" class="form-control" id="cedula" name="cedula" value="{{ paciente.cedula }}" required minlength="10" maxlength="20" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-            </div>
-            <div class="col-md-6 mt-3 mt-md-0">
-              <label for="fecha_nacimiento" class="form-label fw-bold">Fecha de Nacimiento</label>
-              <!-- Usamos fecha_str generada en views.py -->
-              <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" value="{{ fecha_str }}" required>
-            </div>
-          </div>
-
-          <div class="row mb-4">
-            <div class="col-md-6">
-              <label for="telefono" class="form-label fw-bold">Teléfono (Contacto)</label>
-              <input type="tel" class="form-control" id="telefono" name="telefono" value="{{ paciente.telefono }}" required maxlength="20" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-            </div>
-            <div class="col-md-6 mt-3 mt-md-0">
-              <label for="direccion" class="form-label fw-bold">Dirección (Contacto)</label>
-              <input type="text" class="form-control" id="direccion" name="direccion" value="{{ paciente.direccion|default_if_none:'' }}">
-            </div>
-          </div>
-
-          <div class="d-flex justify-content-end gap-2 mt-4">
-            <a href="{% url 'index_pacientes' %}" class="btn btn-secondary"><i class="bi bi-x-circle me-1"></i> Cancelar</a>
-            <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Actualizar Datos</button>
-          </div>
-          
-        </form>
+    <!-- Encabezado de Página -->
+    <div class="page-heading d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 border-bottom mb-4">
+      <div class="d-flex align-items-center gap-3">
+        <span class="page-icon bg-warning-subtle text-warning p-3 rounded-3 fs-4 d-inline-flex align-items-center justify-content-center">
+          <i class="bi bi-pencil-square" aria-hidden="true"></i>
+        </span>
+        <div>
+          <p class="eyebrow mb-1 text-uppercase fw-semibold text-primary style-sm">Clínica UTC • Módulo de Pacientes</p>
+          <h1 class="h3 mb-1 fw-bold">Editar Paciente</h1>
+          <p class="text-muted mb-0">Actualiza los datos personales y de contacto del paciente seleccionado.</p>
+        </div>
+      </div>
+      <div>
+        <a href="{% url 'index_pacientes' %}" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
+          <i class="bi bi-arrow-left"></i> Volver al Listado
+        </a>
       </div>
     </div>
+
+    <!-- Contenedor del Formulario -->
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-10 col-xl-8">
+
+        <!-- Mensajes de Alerta / Validación de Django -->
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm mb-4" role="alert">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <div class="card shadow-sm border-0 rounded-3">
+          <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+            <h5 class="card-title m-0 fw-bold fs-6 text-primary">
+              <i class="bi bi-person-lines-fill me-2"></i>Expediente de {{ paciente.nombre }} {{ paciente.apellido }}
+            </h5>
+            <span class="badge bg-light text-dark border">ID Paciente: #{{ paciente.id }}</span>
+          </div>
+
+          <div class="card-body p-4 pt-1">
+            <form method="POST" novalidate>
+              {% csrf_token %}
+
+              <!-- Nombres y Apellidos -->
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label for="nombre" class="form-label fw-semibold">Nombres <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                    <input type="text" class="form-control" id="nombre" name="nombre" value="{{ paciente.nombre }}" required pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" title="Solo se permiten letras">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="apellido" class="form-label fw-semibold">Apellidos <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                    <input type="text" class="form-control" id="apellido" name="apellido" value="{{ paciente.apellido }}" required pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" title="Solo se permiten letras">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cédula y Fecha de Nacimiento -->
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label for="cedula" class="form-label fw-semibold">Cédula / DNI <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light text-muted"><i class="bi bi-card-heading"></i></span>
+                    <input type="text" class="form-control" id="cedula" name="cedula" value="{{ paciente.cedula }}" required minlength="10" maxlength="20" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                  </div>
+                  <div class="form-text small">Número de identificación oficial.</div>
+                </div>
+                <div class="col-md-6">
+                  <label for="fecha_nacimiento" class="form-label fw-semibold">Fecha de Nacimiento <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light text-muted"><i class="bi bi-calendar-event"></i></span>
+                    <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" value="{{ fecha_str|default:paciente.fecha_nacimiento|date:'Y-m-d' }}" required>
+                  </div>
+                  <div class="form-text small">Se utiliza para recalcular automáticamente la edad.</div>
+                </div>
+              </div>
+
+              <!-- Teléfono y Dirección -->
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <label for="telefono" class="form-label fw-semibold">Teléfono / Celular <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light text-muted"><i class="bi bi-telephone"></i></span>
+                    <input type="tel" class="form-control" id="telefono" name="telefono" value="{{ paciente.telefono }}" required maxlength="20" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="direccion" class="form-label fw-semibold">Dirección Domiciliaria</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light text-muted"><i class="bi bi-geo-alt"></i></span>
+                    <input type="text" class="form-control" id="direccion" name="direccion" value="{{ paciente.direccion|default_if_none:'' }}" placeholder="Ej. Av. Cinco de Junio, Pujilí / Quito">
+                  </div>
+                </div>
+              </div>
+
+              <hr class="my-4 text-muted opacity-25">
+
+              <!-- Acciones del Formulario -->
+              <div class="d-flex justify-content-end align-items-center gap-2">
+                <a href="{% url 'index_pacientes' %}" class="btn btn-outline-secondary px-4">
+                  <i class="bi bi-x-circle me-1"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-warning text-dark fw-semibold px-4">
+                  <i class="bi bi-arrow-repeat me-1"></i> Actualizar Datos
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </main>
+
+<script>
+  // Restringe la selección de fechas futuras
+  document.addEventListener("DOMContentLoaded", function() {
+    const fechaInput = document.getElementById("fecha_nacimiento");
+    if (fechaInput) {
+      const hoy = new Date().toISOString().split("T")[0];
+      fechaInput.setAttribute("max", hoy);
+    }
+  });
+</script>
 
 {% include 'private/footer.html' %}

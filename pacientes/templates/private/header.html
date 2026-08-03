@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="adminHMD professional admin dashboard template">
-  <title>Dashboard | adminHMD</title>
+  <meta name="description" content="Sistema de Gestión Hospitalaria - Clínica UTC">
+  <title>Dashboard | Clínica UTC</title>
 
   <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'assets/vendors/bootstrap-icons/bootstrap-icons.css' %}">
@@ -18,11 +18,11 @@
 
     <aside class="admin-sidebar" id="adminSidebar" aria-label="Main navigation">
       <div class="sidebar-header">
-        <a class="brand-mark" href="{% url 'dashboard' %}" aria-label="adminHMD dashboard">
-          <span class="brand-icon"><i class="bi bi-grid-1x2-fill" aria-hidden="true"></i></span>
+        <a class="brand-mark" href="{% url 'dashboard' %}" aria-label="Clínica UTC dashboard">
+          <span class="brand-icon"><i class="bi bi-hospital-fill" aria-hidden="true"></i></span>
           <span class="brand-copy">
-            <span class="brand-title">adminHMD</span>
-            <span class="brand-subtitle">Admin Template</span>
+            <span class="brand-title">Clínica UTC</span>
+            <span class="brand-subtitle">Sistema Médico</span>
           </span>
         </a>
       </div>
@@ -39,7 +39,7 @@
         </a>
 
         <a class="nav-link" href="{% url 'index_doctores' %}">
-          <span class="nav-icon"><i class="bi bi-gear" aria-hidden="true"></i></span>
+          <span class="nav-icon"><i class="bi bi-person-badge" aria-hidden="true"></i></span>
           <span class="nav-text">Médicos</span>
         </a>
 
@@ -63,7 +63,7 @@
       <div class="sidebar-user">
         <img class="avatar-img avatar-md sidebar-user-avatar" src="{% static 'assets/images/avatar/avatar.jpg' %}" alt="Usuario">
         <strong>{{ request.user.username|default:"Usuario Admin" }}</strong>
-        <small>Workspace Activo</small>
+        <small>Clínica UTC - Activo</small>
       </div>
 
       <div class="sidebar-footer">

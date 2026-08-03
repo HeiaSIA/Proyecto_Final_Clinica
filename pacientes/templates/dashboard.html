@@ -2,45 +2,175 @@
 
 <main class="dashboard-content">
   <div class="container-fluid px-3 px-lg-4 py-4">
-    <div class="page-heading">
-      <div class="page-heading-copy">
-        <span class="page-icon"><i class="bi bi-speedometer2" aria-hidden="true"></i></span>
+    
+    <!-- Encabezado Principal -->
+    <div class="page-heading d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 border-bottom mb-4">
+      <div class="page-heading-copy d-flex align-items-center gap-3">
+        <span class="page-icon bg-primary-subtle text-primary p-3 rounded-3 fs-4 d-inline-flex align-items-center justify-content-center">
+          <i class="bi bi-speedometer2" aria-hidden="true"></i>
+        </span>
         <div>
-          <p class="eyebrow mb-1">Resumen</p>
-          <h1 class="h3 mb-1">Dashboard</h1>
-          <p class="text-muted mb-0">Monitorea el rendimiento del sistema desde un solo lugar.</p>
+          <p class="eyebrow mb-1 text-uppercase fw-semibold text-primary style-sm">Clínica UTC</p>
+          <h1 class="h3 mb-1 fw-bold">Dashboard General</h1>
+          <p class="text-muted mb-0">Monitorea los indicadores clave, citas de hoy y alertas de inventario en tiempo real.</p>
         </div>
       </div>
-      <div class="heading-actions">
-        <button class="btn btn-outline-secondary btn-sm" type="button"><i class="bi bi-download"></i> Exportar</button>
-        <button class="btn btn-primary btn-sm" type="button"><i class="bi bi-file-earmark-plus"></i> Crear Reporte</button>
+      <div class="heading-actions d-flex gap-2">
+        <a href="{% url 'index_citas' %}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1">
+          <i class="bi bi-calendar-plus"></i> Nueva Cita
+        </a>
+        <a href="{% url 'index_facturas' %}" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1">
+          <i class="bi bi-receipt"></i> Nueva Factura
+        </a>
       </div>
     </div>
 
-    <!-- Tarjetas de Métricas -->
-    <section class="row g-3 mt-1" aria-label="Dashboard metrics">
+    <!-- Tarjetas de Métricas Principales (Grid de 4 Columnas) -->
+    <section class="row g-3 mb-4" aria-label="Métricas del Sistema">
+      
+      <!-- Pacientes Totales -->
       <div class="col-12 col-sm-6 col-xl-3">
-        <article class="metric-card metric-primary">
-          <div class="metric-top">
-            <span class="metric-label">Ingresos</span>
-            <span class="metric-icon"><i class="bi bi-currency-dollar"></i></span>
+        <article class="metric-card card border-0 shadow-sm h-100 p-3">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="metric-label text-muted fw-medium">Pacientes Registrados</span>
+            <span class="metric-icon p-2 bg-info-subtle text-info rounded-2"><i class="bi bi-people fs-5"></i></span>
           </div>
-          <div class="metric-value">$48,240</div>
+          <div class="metric-value h3 fw-bold mb-1">{{ total_pacientes|default:"1,284" }}</div>
+          <span class="text-success small fw-medium"><i class="bi bi-check-circle"></i> Base Activa</span>
         </article>
       </div>
 
+      <!-- Citas del Día -->
       <div class="col-12 col-sm-6 col-xl-3">
-        <article class="metric-card metric-success">
-          <div class="metric-top">
-            <span class="metric-label">Pacientes</span>
-            <span class="metric-icon"><i class="bi bi-people"></i></span>
+        <article class="metric-card card border-0 shadow-sm h-100 p-3">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="metric-label text-muted fw-medium">Citas Programadas</span>
+            <span class="metric-icon p-2 bg-primary-subtle text-primary rounded-2"><i class="bi bi-calendar-event fs-5"></i></span>
           </div>
-          <div class="metric-value">1,284</div>
+          <div class="metric-value h3 fw-bold mb-1">{{ total_citas|default:"24" }}</div>
+          <span class="text-primary small fw-medium"><i class="bi bi-clock-history"></i> Agenda Activa</span>
         </article>
       </div>
+
+      <!-- Medicamentos con Alerta de Stock Mínimo -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <article class="metric-card card border-0 shadow-sm h-100 p-3">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="metric-label text-muted fw-medium">Alertas de Farmacia</span>
+            <span class="metric-icon p-2 bg-warning-subtle text-warning rounded-2"><i class="bi bi-exclamation-triangle fs-5"></i></span>
+          </div>
+          <div class="metric-value h3 fw-bold mb-1">{{ stock_alertas|default:"3" }}</div>
+          <span class="text-danger small fw-medium"><i class="bi bi-arrow-down-circle"></i> Insumos &lt; 5 Unidades</span>
+        </article>
+      </div>
+
+      <!-- Recaudación / Facturación -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <article class="metric-card card border-0 shadow-sm h-100 p-3">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="metric-label text-muted fw-medium">Facturación Acumulada</span>
+            <span class="metric-icon p-2 bg-success-subtle text-success rounded-2"><i class="bi bi-currency-dollar fs-5"></i></span>
+          </div>
+          <div class="metric-value h3 fw-bold mb-1">${{ total_ingresos|default:"48,240.00" }}</div>
+          <span class="text-success small fw-medium"><i class="bi bi-graph-up-arrow"></i> Incluye 15% IVA</span>
+        </article>
+      </div>
+
     </section>
 
-    <!-- Aquí va el resto de tus paneles, tablas o gráficos -->
+    <!-- Bloques de Gestión de Datos (Sección Principal) -->
+    <div class="row g-4">
+      
+      <!-- Tabla Resumen: Próximas Citas Médicas -->
+      <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="card-title m-0 fw-bold fs-6"><i class="bi bi-calendar-check text-primary me-2"></i>Próximas Citas Atendidas / Pendientes</h5>
+            <a href="{% url 'index_citas' %}" class="btn btn-sm btn-link text-decoration-none">Ver todas &rarr;</a>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr class="small text-muted">
+                    <th>Paciente</th>
+                    <th>Médico Tratante</th>
+                    <th>Fecha / Hora</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for cita in proximas_citas %}
+                  <tr>
+                    <td class="fw-medium">{{ cita.paciente.nombre_completo }}</td>
+                    <td>Dr. {{ cita.medico.nombre_completo }}</td>
+                    <td>{{ cita.fecha|date:"d/m/Y" }} - {{ cita.hora|time:"H:i" }}</td>
+                    <td>
+                      {% if cita.estado == 'ATENDIDA' %}
+                        <span class="badge bg-success-subtle text-success">Atendida</span>
+                      {% elif cita.estado == 'PENDIENTE' %}
+                        <span class="badge bg-warning-subtle text-warning">Pendiente</span>
+                      {% else %}
+                        <span class="badge bg-danger-subtle text-danger">Cancelada</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <!-- Fila de ejemplo estático si la consulta aún no devuelve datos -->
+                  <tr>
+                    <td class="fw-medium">Carlos Eduardo Mendoza</td>
+                    <td>Dr. Klever Cando</td>
+                    <td>Hoy - 10:30 AM</td>
+                    <td><span class="badge bg-warning-subtle text-warning">Pendiente</span></td>
+                  </tr>
+                  <tr>
+                    <td class="fw-medium">María Fernanda López</td>
+                    <td>Dra. Andrea Serrano</td>
+                    <td>Hoy - 11:15 AM</td>
+                    <td><span class="badge bg-success-subtle text-success">Atendida</span></td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta Lateral: Accesos Rápidos y Estado del Sistema -->
+      <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white py-3">
+            <h5 class="card-title m-0 fw-bold fs-6"><i class="bi bi-lightning-charge text-warning me-2"></i>Acciones Rápidas</h5>
+          </div>
+          <div class="card-body d-grid gap-2">
+            <a href="{% url 'index_pacientes' %}" class="btn btn-outline-secondary text-start d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-person-plus me-2"></i>Registrar Nuevo Paciente</span>
+              <i class="bi bi-chevron-right small"></i>
+            </a>
+            <a href="{% url 'index_medicamentos' %}" class="btn btn-outline-secondary text-start d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-capsule me-2"></i>Consultar Stock Farmacia</span>
+              <i class="bi bi-chevron-right small"></i>
+            </a>
+            <a href="{% url 'index_doctores' %}" class="btn btn-outline-secondary text-start d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-person-badge me-2"></i>Directorio Médico UTC</span>
+              <i class="bi bi-chevron-right small"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="card border-0 bg-primary text-white shadow-sm p-3">
+          <div class="d-flex align-items-center gap-3">
+            <i class="bi bi-hospital fs-1"></i>
+            <div>
+              <h6 class="fw-bold mb-1">Clínica UTC WorkSpace</h6>
+              <p class="small mb-0 opacity-75">Servicios médicos y control hospitalario activo.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
 
   </div>
 </main>
