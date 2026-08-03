@@ -1,0 +1,136 @@
+{% load static %}
+{% include 'private/header.html' %}
+
+<!-- CSS de DataTables para Bootstrap 5 -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
+<main class="dashboard-content">
+  <div class="container-fluid px-3 px-lg-4 py-4">
+
+    <!-- Encabezado y Acciones -->
+    <div class="row align-items-center mb-4">
+      <div class="col-md-6">
+        <h1 class="h3 mb-1">Listado de Pacientes</h1>
+        <p class="text-muted mb-0">Gestión e historial de pacientes activos.</p>
+      </div>
+      
+      <div class="col-md-6 mt-3 mt-md-0 text-md-end">
+        <a href="{% url 'importar_pacientes' %}" class="btn btn-primary me-2">
+          <i class="bi bi-file-earmark-arrow-up-fill me-1"></i> Importar Pacientes
+        </a>
+        <a href="{% url 'crear_paciente' %}" class="btn btn-success">
+          <i class="bi bi-person-plus-fill me-1"></i> Crear Nuevo Paciente
+        </a>
+      </div>
+    </div>
+      
+    <!-- Tabla de Pacientes -->
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <table id="tablaPacientes" class="table table-sm table-striped table-hover align-middle mb-0" style="width: 100%;">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 5%;">ID</th>
+                <th>Paciente</th>
+                <th>Cédula</th>
+                <th>Edad</th>
+                <th>Teléfono</th>
+                <th>Dirección</th>
+                <th class="text-end" style="width: 15%;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for paciente in pacientes %}
+              <tr>
+                <td>{{ paciente.id }}</td>
+                <td><strong>{{ paciente.nombre }} {{ paciente.apellido }}</strong></td>
+                <td>{{ paciente.cedula }}</td>
+                <td>{{ paciente.edad }}</td>
+                <td>{{ paciente.telefono }}</td>
+                <td>{{ paciente.direccion|default:"No registrada" }}</td>
+                <td class="text-end">
+                  <a href="{% url 'editar_paciente' paciente.id %}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-pencil-square"></i>
+                  </a>
+                  
+                  <a href="#" data-url="{% url 'eliminar_paciente' paciente.id %}" onclick="confirmarDesactivacion(event)" class="btn btn-sm btn-danger ms-1">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                </td>
+              </tr> 
+              {% endfor %}
+            </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+{% include 'private/footer.html' %}
+
+<!-- Scripts Requeridos (jQuery, DataTables y SweetAlert2) -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{% if messages %}
+<div id="mensajes-django" style="display:none;">
+    {% for message in messages %}
+        <div class="mensaje-django" data-tags="{{ message.tags|escape }}" data-text="{{ message|escape }}"></div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script>
+    // 1. Inicialización de DataTables en Español
+    $(document).ready(function() {
+        $('#tablaPacientes').DataTable({
+            "language": {
+                "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+            },
+            "order": [[ 0, "desc" ]], 
+            "autoWidth": false
+        });
+    });
+
+    // 2. Lógica de SweetAlert para Mensajes de Django
+    document.addEventListener('DOMContentLoaded', function() {
+        const mensajeElements = document.querySelectorAll('#mensajes-django .mensaje-django');
+        mensajeElements.forEach((el) => {
+            const tags = el.dataset.tags || 'info';
+            let iconType = 'info';
+            if (tags.includes('error')) iconType = 'error';
+            else if (tags.includes('success')) iconType = 'success';
+            else if (tags.includes('warning')) iconType = 'warning';
+
+            const title = iconType === 'error' ? '¡Error!' : (iconType === 'success' ? '¡Éxito!' : '¡Atención!');
+            
+            Swal.fire({
+                title: title, text: el.dataset.text, icon: iconType, confirmButtonColor: '#198754'
+            });
+        });
+    });
+
+    // 3. Lógica de Confirmación de Eliminación
+    function confirmarDesactivacion(event) {
+        event.preventDefault();
+        const url = event.currentTarget.dataset.url;
+        
+        Swal.fire({
+            title: '¿Eliminar paciente?',
+            text: "El paciente será eliminado.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
+</script>

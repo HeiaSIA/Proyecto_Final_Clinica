@@ -1,0 +1,63 @@
+{% load static %}
+{% include 'private/header.html' %}
+
+<main class="dashboard-content">
+  <div class="container-fluid px-3 px-lg-4 py-4">
+
+    <div class="mb-4">
+      <h1 class="h3 mb-1">Editar Paciente</h1>
+      <p class="text-muted mb-0">Modifica los datos del paciente seleccionado.</p>
+    </div>
+
+    <div class="card shadow-sm border-0" style="max-width: 800px;">
+      <div class="card-body p-4">
+        
+        <form method="POST">
+          {% csrf_token %}
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="nombre" class="form-label fw-bold">Nombre</label>
+              <input type="text" class="form-control" id="nombre" name="nombre" value="{{ paciente.nombre }}" required pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+">
+            </div>
+            <div class="col-md-6 mt-3 mt-md-0">
+              <label for="apellido" class="form-label fw-bold">Apellido</label>
+              <input type="text" class="form-control" id="apellido" name="apellido" value="{{ paciente.apellido }}" required pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+">
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="cedula" class="form-label fw-bold">Cédula / DNI</label>
+              <input type="text" class="form-control" id="cedula" name="cedula" value="{{ paciente.cedula }}" required minlength="10" maxlength="20" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            </div>
+            <div class="col-md-6 mt-3 mt-md-0">
+              <label for="fecha_nacimiento" class="form-label fw-bold">Fecha de Nacimiento</label>
+              <!-- Usamos fecha_str generada en views.py -->
+              <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" value="{{ fecha_str }}" required>
+            </div>
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <label for="telefono" class="form-label fw-bold">Teléfono (Contacto)</label>
+              <input type="tel" class="form-control" id="telefono" name="telefono" value="{{ paciente.telefono }}" required maxlength="20" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            </div>
+            <div class="col-md-6 mt-3 mt-md-0">
+              <label for="direccion" class="form-label fw-bold">Dirección (Contacto)</label>
+              <input type="text" class="form-control" id="direccion" name="direccion" value="{{ paciente.direccion|default_if_none:'' }}">
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{% url 'index_pacientes' %}" class="btn btn-secondary"><i class="bi bi-x-circle me-1"></i> Cancelar</a>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Actualizar Datos</button>
+          </div>
+          
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+{% include 'private/footer.html' %}
