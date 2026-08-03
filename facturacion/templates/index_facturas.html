@@ -1,63 +1,84 @@
 {% load static %}
 {% include 'private/header.html' %}
 
+<!-- CSS de DataTables para Bootstrap 5 -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 
 <main class="dashboard-content">
   <div class="container-fluid px-3 px-lg-4 py-4">
 
-    <!-- Encabezado -->
-    <div class="row align-items-center mb-4">
-      <div class="col-md-8">
-        <h1 class="h3 mb-1">Historial de Cobros y Facturación</h1>
-        <p class="text-muted mb-0">Gestión de comprobantes emitidos y desglose de impuestos.</p>
+    <!-- Encabezado de Página -->
+    <div class="page-heading d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 border-bottom mb-4">
+      <div class="d-flex align-items-center gap-3">
+        <span class="page-icon bg-success-subtle text-success p-3 rounded-3 fs-4 d-inline-flex align-items-center justify-content-center">
+          <i class="bi bi-receipt" aria-hidden="true"></i>
+        </span>
+        <div>
+          <p class="eyebrow mb-1 text-uppercase fw-semibold text-primary style-sm">Clínica UTC • Contabilidad & Caja</p>
+          <h1 class="h3 mb-1 fw-bold">Historial de Cobros y Facturación</h1>
+          <p class="text-body-secondary mb-0">Gestión de comprobantes emitidos, desglose de impuestos e historial contable.</p>
+        </div>
       </div>
-      <div class="col-md-4 mt-3 mt-md-0 text-md-end">
-        <a href="{% url 'crear_factura' %}" class="btn btn-success">
-          <i class="bi bi-receipt-cutoff me-1"></i> Generar Nueva Factura
+      <div>
+        <a href="{% url 'crear_factura' %}" class="btn btn-success d-inline-flex align-items-center gap-1 shadow-sm">
+          <i class="bi bi-receipt-cutoff"></i> Generar Nueva Factura
         </a>
       </div>
     </div>
 
     <!-- Tabla dentro de tarjeta -->
-    <div class="card shadow-sm border-0">
-      <div class="card-body p-3">
-        <!-- ⚠️ CONTENEDOR RESPONSIVO QUE CORRIGE EL SCROLL GENERAL DE LA PÁGINA -->
+    <div class="card shadow-sm border-0 rounded-3">
+      <div class="card-header bg-transparent py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="card-title m-0 fw-bold fs-6 text-body-emphasis">
+          <i class="bi bi-file-earmark-spreadsheet me-2 text-primary"></i>Comprobantes Registrados
+        </h5>
+        <span class="badge bg-success-subtle text-success border border-success-subtle">Total: {{ facturas|length }}</span>
+      </div>
+
+      <div class="card-body p-3 p-lg-4">
         <div class="table-responsive">
-          <table id="tablaFacturas" class="table table-sm table-striped table-hover align-middle mb-0" style="width: 100%;">
-            <thead class="table-light">
+          <table id="tablaFacturas" class="table table-hover align-middle mb-0 w-100">
+            <thead class="table-light border-bottom">
               <tr>
-                <th>ID</th>
-                <th>Fecha</th>
+                <th style="width: 5%;">ID</th>
+                <th style="width: 12%;">Fecha</th>
                 <th>Paciente</th>
-                <th>Concepto</th>
-                <th>Subtotal</th>
-                <th>IVA (15%)</th>
-                <th>Total</th>
-                <th class="text-end">Acciones</th>
+                <th>Concepto / Motivo</th>
+                <th class="text-end" style="width: 12%;">Subtotal</th>
+                <th class="text-end" style="width: 12%;">IVA (15%)</th>
+                <th class="text-end" style="width: 12%;">Total</th>
+                <th class="text-end" style="width: 12%;">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {% for f in facturas %}
               <tr>
-                <td>{{ f.id }}</td>
+                <td class="fw-semibold text-body-secondary">#{{ f.id }}</td>
                 <td class="text-nowrap">{{ f.fecha_emision|date:"d/m/Y" }}</td>
-                <td><strong>{{ f.paciente.nombre }} {{ f.paciente.apellido }}</strong></td>
-                <td>{{ f.concepto }}</td>
-                <td class="text-nowrap">${{ f.subtotal }}</td>
-                <td class="text-nowrap"><span class="text-muted">${{ f.iva }}</span></td>
-                <td class="text-nowrap"><strong class="text-success">${{ f.total }}</strong></td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="bg-light text-primary rounded-circle p-1 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                      <i class="bi bi-person-fill small"></i>
+                    </div>
+                    <span class="fw-bold text-body-emphasis">{{ f.paciente.nombre }} {{ f.paciente.apellido }}</span>
+                  </div>
+                </td>
+                <td><span class="text-body-secondary">{{ f.concepto }}</span></td>
+                <td class="text-end text-nowrap text-body-secondary">${{ f.subtotal|floatformat:2 }}</td>
+                <td class="text-end text-nowrap text-muted">${{ f.iva|floatformat:2 }}</td>
+                <td class="text-end text-nowrap"><strong class="text-success">${{ f.total|floatformat:2 }}</strong></td>
                 <td class="text-end text-nowrap">
-
-                  <a href="{% url 'ver_factura' f.id %}" class="btn btn-sm btn-info" title="Ver Detalles">
-                    <i class="bi bi-eye-fill"></i>
-                  </a>
-                  <a href="{% url 'editar_factura' f.id %}" class="btn btn-sm btn-primary" title="Editar">
-                    <i class="bi bi-pencil-square"></i>
-                  </a>
-                  <a href="#" data-url="{% url 'eliminar_factura' f.id %}" onclick="confirmarEliminacion(event)" class="btn btn-sm btn-danger ms-1" title="Eliminar">
-                    <i class="bi bi-trash"></i>
-                  </a>
+                  <div class="btn-group btn-group-sm" role="group" aria-label="Acciones de comprobante">
+                    <a href="{% url 'ver_factura' f.id %}" class="btn btn-outline-info" title="Ver Detalle / Imprimir">
+                      <i class="bi bi-eye-fill"></i>
+                    </a>
+                    <a href="{% url 'editar_factura' f.id %}" class="btn btn-outline-primary" title="Editar Comprobante">
+                      <i class="bi bi-pencil-square"></i>
+                    </a>
+                    <button type="button" data-url="{% url 'eliminar_factura' f.id %}" onclick="confirmarEliminacion(event)" class="btn btn-outline-danger" title="Eliminar Registro">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
                 </td>
               </tr>
               {% endfor %}
@@ -72,13 +93,14 @@
 
 {% include 'private/footer.html' %}
 
+<!-- Scripts Requeridos (jQuery, DataTables y SweetAlert2) -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 {% if messages %}
-<div id="mensajes-django" style="display:none;">
+<div id="mensajes-django" class="d-none">
     {% for message in messages %}
         <div class="mensaje-django" data-tags="{{ message.tags|escape }}" data-text="{{ message|escape }}"></div>
     {% endfor %}
@@ -86,33 +108,22 @@
 {% endif %}
 
 <script>
+    // 1. Inicialización de DataTables en Español
     $(document).ready(function() {
         $('#tablaFacturas').DataTable({
             "language": {
-                "decimal": "",
-                "emptyTable": "No hay datos disponibles en la tabla",
-                "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
-                "infoEmpty": "Mostrando 0 a 0 de 0 registros",
-                "infoFiltered": "(filtrado de _MAX_ registros totales)",
-                "lengthMenu": "Mostrar _MENU_ registros",
-                "loadingRecords": "Cargando...",
-                "processing": "Procesando...",
-                "search": "Buscar:",
-                "zeroRecords": "No se encontraron resultados",
-                "paginate": {
-                    "first": "Primero",
-                    "last": "Último",
-                    "next": "Siguiente",
-                    "previous": "Anterior"
-                }
+                "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
             },
             "order": [[ 0, "desc" ]],
-            "responsive": true,
-            "autoWidth": false
+            "autoWidth": false,
+            "pageLength": 10,
+            "columnDefs": [
+                { "orderable": false, "targets": 7 }
+            ]
         });
     });
 
-    // SweetAlert para mensajes de Django
+    // 2. Lógica de SweetAlert2 para Mensajes de Django
     document.addEventListener('DOMContentLoaded', function() {
         const mensajeElements = document.querySelectorAll('#mensajes-django .mensaje-django');
         mensajeElements.forEach((el) => {
@@ -120,29 +131,42 @@
             let iconType = 'info';
             if (tags.includes('error')) iconType = 'error';
             else if (tags.includes('success')) iconType = 'success';
+            else if (tags.includes('warning')) iconType = 'warning';
+
+            const title = iconType === 'error' ? '¡Error!' : (iconType === 'success' ? '¡Operación Exitosa!' : '¡Atención!');
 
             Swal.fire({
-                title: iconType === 'success' ? '¡Éxito!' : 'Atención',
+                title: title,
                 text: el.dataset.text,
                 icon: iconType,
-                confirmButtonColor: '#198754'
+                confirmButtonColor: '#0d6efd',
+                customClass: {
+                  confirmButton: 'btn btn-primary px-4'
+                }
             });
         });
     });
 
-    // Confirmación de eliminación
+    // 3. Confirmación Interactiva para Eliminación
     function confirmarEliminacion(event) {
         event.preventDefault();
-        const url = event.currentTarget.dataset.url;
+        const button = event.currentTarget;
+        const url = button.dataset.url;
+
         Swal.fire({
             title: '¿Eliminar factura?',
-            text: "El registro se borrará permanentemente de la base de datos.",
+            text: "El comprobante será removido permanentemente del registro contable de la Clínica UTC.",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc3545',
             cancelButtonColor: '#6c757d',
             confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
+            cancelButtonText: 'Cancelar',
+            customClass: {
+              confirmButton: 'btn btn-danger px-3 me-2',
+              cancelButton: 'btn btn-secondary px-3'
+            },
+            buttonsStyling: false
         }).then((result) => {
             if (result.isConfirmed) {
                 window.location.href = url;
