@@ -1,0 +1,99 @@
+{% load static %}
+{% include 'private/header.html' %}
+
+<main class="dashboard-content">
+  <div class="container-fluid px-3 px-lg-4 py-4">
+
+    <!-- Encabezado -->
+    <div class="row align-items-center mb-4">
+      <div class="col-md-8">
+        <h1 class="h3 mb-1">Registrar Nuevo Médico</h1>
+        <p class="text-muted mb-0">Añade un nuevo profesional a la plantilla de la clínica.</p>
+      </div>
+      <div class="col-md-4 mt-3 mt-md-0 text-md-end">
+        <a href="{% url 'index_doctores' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i> Volver al listado
+        </a>
+      </div>
+    </div>
+
+    <!-- Formulario en Card -->
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-4">
+            <form method="POST">
+              {% csrf_token %}
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="nombres" class="form-label fw-bold">Nombres</label>
+                  <input type="text" name="nombres" id="nombres" class="form-control" placeholder="Ej. Juan Pérez" required>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="apellidos" class="form-label fw-bold">Apellidos</label>
+                  <input type="text" name="apellidos" id="apellidos" class="form-control" placeholder="Ej. López Silva" required>
+                </div>
+
+                <!-- Campo de Especialidad modificado a Select -->
+                <div class="col-md-6">
+                  <label for="especialidad" class="form-label fw-bold">Especialidad</label>
+                  <select name="especialidad" id="especialidad" class="form-select" required>
+                    <option value="" selected disabled>Seleccione una especialidad...</option>
+                    <option value="Medicina General">Medicina General</option>
+                    <option value="Pediatría">Pediatría</option>
+                    <option value="Ginecología">Ginecología</option>
+                    <option value="Cardiología">Cardiología</option>
+                    <option value="Dermatología">Dermatología</option>
+                    <option value="Oftalmología">Oftalmología</option>
+                    <option value="Traumatología">Traumatología</option>
+                    <option value="Odontología">Odontología</option>
+                    <option value="Psicología">Psicología</option>
+                    <option value="Nutrición">Nutrición</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="registro_profesional" class="form-label fw-bold">Registro Profesional</label>
+                  <input type="text" name="registro_profesional" id="registro_profesional" class="form-control" placeholder="Número de registro o licencia" required>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="telefono" class="form-label fw-bold">Teléfono de Contacto</label>
+                  <input type="text" name="telefono" id="telefono" class="form-control" placeholder="Número de contacto" required>
+                </div>
+
+                <!-- Control de Disponibilidad -->
+                <div class="col-12 mt-4">
+                  <div class="bg-light rounded border p-3">
+                    <div class="form-check form-switch ps-5 mb-0">
+                      <input type="checkbox" name="activo" id="activo" class="form-check-input" checked>
+                      <label class="form-check-label fw-bold ms-2" for="activo">
+                        Estado Activo / Disponible
+                      </label>
+                      <div class="form-text text-muted">
+                        Si está marcado, el médico podrá recibir y agendar nuevas citas.
+                      </div>
+                    </div>
+                  </div>
+                </div>    
+
+                <div class="col-12 mt-4 d-flex justify-content-end gap-2">
+                  <a href="{% url 'index_doctores' %}" class="btn btn-light">Cancelar</a>
+                  <button type="submit" class="btn btn-success px-4">
+                    <i class="bi bi-save me-1"></i> Guardar Médico
+                  </button>
+                </div>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+{% include 'private/footer.html' %}
