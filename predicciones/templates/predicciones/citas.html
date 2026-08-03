@@ -1,0 +1,52 @@
+{% include 'private/header.html' %}
+
+<div class="container mt-5 mb-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="fas fa-calendar-alt"></i> Predicción de Flujo de Pacientes</h3>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">Proyección de citas médicas estimadas para el próximo mes según el historial de cada especialidad.</p>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if predicciones %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Especialidad</th>
+                                <th class="text-center">Citas (Mes Actual)</th>
+                                <th class="text-center text-success">Predicción (Próximo Mes)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in predicciones %}
+                                <tr>
+                                    <td class="fw-bold">{{ p.especialidad }}</td>
+                                    <td class="text-center">{{ p.citas_actuales }}</td>
+                                    <td class="text-center text-success fw-bold">
+                                        <i class="fas fa-chart-line"></i> {{ p.prediccion_proximo_mes }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-warning text-center" role="alert">
+                    No hay suficientes datos históricos para generar predicciones de citas aún.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% include 'private/footer.html' %}

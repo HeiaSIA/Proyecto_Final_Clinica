@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'citas',
     'medicamentos',
     'facturacion',
+    'predicciones',
 ]
 
 MIDDLEWARE = [
