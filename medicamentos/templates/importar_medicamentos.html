@@ -1,0 +1,18 @@
+{% load static %}
+{% include 'private/header.html'%}
+
+<br>
+<div style="margin-left: 30px;">
+    <h2>Importar Medicamentos</h2>
+    <br>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ formulario.as_p }} 
+        <br>
+        <button class="btn btn-success" type="submit"> Importar </button>
+    </form>
+</div>
+<br>
+
+{% include 'private/footer.html'%}
