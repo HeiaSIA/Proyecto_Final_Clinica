@@ -1,0 +1,152 @@
+{% load static %}
+{% include 'private/header.html' %}
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
+<main class="dashboard-content">
+  <div class="container-fluid px-3 px-lg-4 py-4">
+
+    <!-- Encabezado -->
+    <div class="row align-items-center mb-4">
+      <div class="col-md-8">
+        <h1 class="h3 mb-1">Historial de Cobros y Facturación</h1>
+        <p class="text-muted mb-0">Gestión de comprobantes emitidos y desglose de impuestos.</p>
+      </div>
+      <div class="col-md-4 mt-3 mt-md-0 text-md-end">
+        <a href="{% url 'crear_factura' %}" class="btn btn-success">
+          <i class="bi bi-receipt-cutoff me-1"></i> Generar Nueva Factura
+        </a>
+      </div>
+    </div>
+
+    <!-- Tabla dentro de tarjeta -->
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-3">
+        <!-- ⚠️ CONTENEDOR RESPONSIVO QUE CORRIGE EL SCROLL GENERAL DE LA PÁGINA -->
+        <div class="table-responsive">
+          <table id="tablaFacturas" class="table table-sm table-striped table-hover align-middle mb-0" style="width: 100%;">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Paciente</th>
+                <th>Concepto</th>
+                <th>Subtotal</th>
+                <th>IVA (15%)</th>
+                <th>Total</th>
+                <th class="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for f in facturas %}
+              <tr>
+                <td>{{ f.id }}</td>
+                <td class="text-nowrap">{{ f.fecha_emision|date:"d/m/Y" }}</td>
+                <td><strong>{{ f.paciente.nombre }} {{ f.paciente.apellido }}</strong></td>
+                <td>{{ f.concepto }}</td>
+                <td class="text-nowrap">${{ f.subtotal }}</td>
+                <td class="text-nowrap"><span class="text-muted">${{ f.iva }}</span></td>
+                <td class="text-nowrap"><strong class="text-success">${{ f.total }}</strong></td>
+                <td class="text-end text-nowrap">
+
+                  <a href="{% url 'ver_factura' f.id %}" class="btn btn-sm btn-info" title="Ver Detalles">
+                    <i class="bi bi-eye-fill"></i>
+                  </a>
+                  <a href="{% url 'editar_factura' f.id %}" class="btn btn-sm btn-primary" title="Editar">
+                    <i class="bi bi-pencil-square"></i>
+                  </a>
+                  <a href="#" data-url="{% url 'eliminar_factura' f.id %}" onclick="confirmarEliminacion(event)" class="btn btn-sm btn-danger ms-1" title="Eliminar">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+{% include 'private/footer.html' %}
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{% if messages %}
+<div id="mensajes-django" style="display:none;">
+    {% for message in messages %}
+        <div class="mensaje-django" data-tags="{{ message.tags|escape }}" data-text="{{ message|escape }}"></div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script>
+    $(document).ready(function() {
+        $('#tablaFacturas').DataTable({
+            "language": {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                "lengthMenu": "Mostrar _MENU_ registros",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron resultados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+            "order": [[ 0, "desc" ]],
+            "responsive": true,
+            "autoWidth": false
+        });
+    });
+
+    // SweetAlert para mensajes de Django
+    document.addEventListener('DOMContentLoaded', function() {
+        const mensajeElements = document.querySelectorAll('#mensajes-django .mensaje-django');
+        mensajeElements.forEach((el) => {
+            const tags = el.dataset.tags || 'info';
+            let iconType = 'info';
+            if (tags.includes('error')) iconType = 'error';
+            else if (tags.includes('success')) iconType = 'success';
+
+            Swal.fire({
+                title: iconType === 'success' ? '¡Éxito!' : 'Atención',
+                text: el.dataset.text,
+                icon: iconType,
+                confirmButtonColor: '#198754'
+            });
+        });
+    });
+
+    // Confirmación de eliminación
+    function confirmarEliminacion(event) {
+        event.preventDefault();
+        const url = event.currentTarget.dataset.url;
+        Swal.fire({
+            title: '¿Eliminar factura?',
+            text: "El registro se borrará permanentemente de la base de datos.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
+</script>
