@@ -56,7 +56,7 @@
                   <select name="paciente" id="paciente" class="form-select" required>
                     <option value="" selected disabled>Seleccione un paciente...</option>
                     {% for p in pacientes %}
-                      <option value="{{ p.id }}">{{ p.nombre }} {{ p.apellido }} (CI: {{ p.cedula }})</option>
+                      <option value="{{ p.pk }}">{{ p.nombre }} {{ p.apellido }} (CI: {{ p.cedula }})</option>
                     {% endfor %}
                   </select>
                 </div>

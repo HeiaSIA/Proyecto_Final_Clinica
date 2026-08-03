@@ -8,10 +8,10 @@ class Factura(models.Model):
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     iva = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    fecha_emision = models.DateField(auto_now_add=True)
+    fecha_emision = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Factura #{self.id} - {self.paciente.nombre} {self.paciente.apellido}"
+        return f"Factura #{self.pk} - {self.paciente.nombre} {self.paciente.apellido}"
 
 class DetalleFactura(models.Model):
     factura = models.ForeignKey(Factura, on_delete=models.CASCADE, related_name='detalles')
