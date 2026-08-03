@@ -1,39 +1,55 @@
 {% include 'private/header.html' %}
 
-<div class="container mt-5 mb-5">
-    <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-            <h3 class="mb-0"><i class="fas fa-calendar-alt"></i> Predicción de Flujo de Pacientes</h3>
+<div class="container my-4">
+    <!-- Encabezado de la Sección -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h3 fw-bold text-dark mb-1">
+                <i class="bi bi-graph-up-arrow text-primary me-2"></i>Predicción de Flujo de Pacientes
+            </h2>
+            <p class="text-muted mb-0">Proyección de citas médicas estimadas para el próximo mes según el historial por especialidad.</p>
         </div>
-        <div class="card-body">
-            <p class="text-muted">Proyección de citas médicas estimadas para el próximo mes según el historial de cada especialidad.</p>
+    </div>
 
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
+    <!-- Alertas del sistema -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+                <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% elif message.tags == 'danger' %}bi-exclamation-triangle-fill{% else %}bi-info-circle-fill{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
 
+    <!-- Tarjeta Principal -->
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-4">
             {% if predicciones %}
                 <div class="table-responsive">
-                    <table class="table table-hover table-bordered align-middle">
+                    <table id="tablaPredicciones" class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>Especialidad</th>
-                                <th class="text-center">Citas (Mes Actual)</th>
-                                <th class="text-center text-success">Predicción (Próximo Mes)</th>
+                                <th class="py-3">Especialidad</th>
+                                <th class="text-center py-3">Citas (Mes Actual)</th>
+                                <th class="text-center py-3">Predicción (Próximo Mes)</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for p in predicciones %}
                                 <tr>
-                                    <td class="fw-bold">{{ p.especialidad }}</td>
-                                    <td class="text-center">{{ p.citas_actuales }}</td>
-                                    <td class="text-center text-success fw-bold">
-                                        <i class="fas fa-chart-line"></i> {{ p.prediccion_proximo_mes }}
+                                    <td class="fw-semibold text-dark">
+                                        <i class="bi bi-hospital text-muted me-2"></i>{{ p.especialidad }}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill fs-6">
+                                            {{ p.citas_actuales }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fs-6 fw-bold">
+                                            <i class="bi bi-arrow-up-right-circle me-1"></i>{{ p.prediccion_proximo_mes }}
+                                        </span>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -41,12 +57,32 @@
                     </table>
                 </div>
             {% else %}
-                <div class="alert alert-warning text-center" role="alert">
-                    No hay suficientes datos históricos para generar predicciones de citas aún.
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="bi bi-bar-chart-line text-muted display-4"></i>
+                    </div>
+                    <h5 class="fw-bold text-secondary">Sin datos suficientes</h5>
+                    <p class="text-muted mb-0">No hay registros históricos requeridos para calcular las predicciones de citas aún.</p>
                 </div>
             {% endif %}
         </div>
     </div>
 </div>
+
+<!-- Inicialización de DataTables -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (document.getElementById('tablaPredicciones')) {
+            $('#tablaPredicciones').DataTable({
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                },
+                pageLength: 10,
+                responsive: true,
+                dom: '<"d-flex justify-content-between align-items-center mb-3"lf>rt<"d-flex justify-content-between align-items-center mt-3"ip>'
+            });
+        }
+    });
+</script>
 
 {% include 'private/footer.html' %}
